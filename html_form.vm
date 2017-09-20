@@ -1,0 +1,181 @@
+######################################################################################################################################################
+#set( $url = "http://localhost:3000/" )
+#set( $table = $entity )
+#set( $prefix = "{{entity['" )
+#set( $suffix = "']}}" )
+######################################################################################################################################################
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="${url}home">Home</a></li>
+    <li class="breadcrumb-item active"><a href="${url}${entity.name.toLowerCase()}">$entity.name</a></li>
+    <li class="breadcrumb-item active">{{form}} $entity.name</li>
+</ol>
+
+
+<div class="container">
+    <h2></h2>
+    <div class="container">
+        <form class="form-horizontal" method="post" id="${entity.name.toLowerCase()}_form">
+            <div class="panel-group">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+						<h3>
+							<span class="glyphicon glyphicon-leaf"></span>
+							{{form}} $entity.name
+                            %if form == "Update" :
+                            <a href="${url}${entity.name.toLowerCase()}/form">
+                                <button type="button" formaction="${url}${entity.name.toLowerCase()}/form" class="btn btn-default pull-right">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </a>
+                            % end
+                            <a href="${url}${entity.name.toLowerCase()}">
+                                <button type="button" formaction="${url}${entity.name.toLowerCase()}" class="btn btn-link pull-right">
+                                    List
+                                </button>
+                            </a>
+						</h3>
+					</div>
+                    <div class="panel-body">
+                        {{!message}}
+#if( ! $entity.hasCompositePrimaryKey())
+#foreach( $field in $entity.keyAttributes )
+                        <div class="form-group">
+                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())*#end</label>
+                            <div class="col-sm-8">
+                                % if form == "Create" :
+                                <input id="${field.name}" class="form-control" name='$field.name' value="auto value" disabled/>
+                                % elif form == "Update" :
+                                <h5> {{entity['${field.name}']}} </h5>
+                                % end
+                            </div>
+                        </div>
+#end
+#foreach( $field in $entity.nonKeyAttributes )
+#if( $field.isFK() )
+#set( $foreign_table = $field.referencedEntityName )
+#set( $entity = $field.referencedEntity )
+                        <div class="form-group">
+                            <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
+                            <div class="col-sm-8">
+                                <select id='$field.name' name='$field.name' class="selectpicker">
+                                    % if form == "Update" :
+                                    <optgroup label="">
+                                        <option value="{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}}" selected>{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{select_${fn.toLowerCase($foreign_table)}['$field.name']}} #end</option>
+                                        <option data-divider="true" ></option>
+                                    </optgroup>
+                                    <optgroup label="All the list">
+                                        <option value=""></option>
+                                        % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                        <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                        % end
+                                    </optgroup>
+                                    % elif form == "Create" :
+                                    <option value=""></option>
+                                        % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                        <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} - #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                        % end
+                                    % end
+                                </select>
+                                <a href="${url}$fn.toLowerCase($foreign_table)/form">
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+                                </a>
+                            </div>
+                        </div>
+#else
+                        <div class="form-group">
+                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())*#end</label>
+                            <div class="col-sm-8">
+                                % if form == "Create" :
+                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='$field.name' value=""/>
+                                % elif form == "Update" : 
+                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='${field.name}' value="{{entity['${field.name}']}}"/>
+                                % end
+                            </div>
+                        </div>
+#end
+#end
+#else
+#foreach( $field in $entity.attributes )
+#if( $field.isFK() )
+#set( $foreign_table = $field.referencedEntityName )
+#set( $entity = $field.referencedEntity )
+                        <div class="form-group">
+                            <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
+                            <div class="col-sm-8">
+                                <select id='$field.name' name='$field.name' class="selectpicker">
+                                    % if form == "Create" :
+                                    <option value=""></option>
+                                    % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                    <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} - #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                    % end
+                                    % elif form == "Update" :
+                                    <optgroup label="">
+                                        <option value="{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}}" selected>{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{select_${fn.toLowerCase($foreign_table)}['$field.name']}} #end</option>
+                                        <option data-divider="true" ></option>
+                                    </optgroup>
+                                    <optgroup label="All the list">
+                                        <option value=""></option>
+                                        % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                        <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                        % end
+                                    </optgroup>
+                                    % end
+                                </select>
+                                <a href="${url}$fn.toLowerCase($foreign_table)/form">
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+                                </a>
+                            </div>
+                        </div>
+#else
+                        <div class="form-group">
+                            <label for="${field.name}" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
+                            <div class="col-sm-8">
+                                % if form == "Create" :
+                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='$field.name' value=""/>
+                                % elif form == "Update" :
+                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='${field.name}' value="{{entity['${field.name}']}}"/>
+                                % end
+                            </div>
+                        </div>
+#end
+#end
+#end
+#set( $entity = $table )
+                    </div>
+                    % if form == "Create" :
+                    <div class="panel-footer text-center">
+                        <a href="${url}${entity.name.toLowerCase()}/create">
+                                <button type="submit" formaction="${url}${entity.name.toLowerCase()}/create" name="non_fk" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                        </a>
+                        <div class="clearfix"></div>
+                    </div>
+                    % elif form == "Update" : 
+                    <div class="panel-footer">
+                        <a href="${url}${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)">
+                            <button type="button" class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+                        </a>
+                        <a href="${url}${entity.name.toLowerCase()}/update/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)">
+                                <button type="submit" formaction="/${entity.name.toLowerCase()}/update/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                        </a>
+                        <div class="clearfix"></div>
+                    </div>
+                    % end
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+#foreach( $field in $entity.attributes )
+#if( $field.isTemporalType() )
+<script type="text/javascript">
+$(document).ready(function() {
+    $(function () {
+        $('${SHARP}${field.name}').datepicker({
+            format: 'yyyy-mm-dd'
+        });
+    });
+});
+</script>
+#end
+#end
