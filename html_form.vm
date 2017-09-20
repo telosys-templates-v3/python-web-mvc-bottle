@@ -43,7 +43,7 @@
                             <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())*#end</label>
                             <div class="col-sm-8">
                                 % if form == "Create" :
-                                <input id="${field.name}" class="form-control" name='$field.name' value="auto value" disabled/>
+                                <input id="${field.name}" class="form-control" name='$field.name' #if($entity.hasAutoIncrementedKey())value="auto value" disabled#end/>
                                 % elif form == "Update" :
                                 <h5> {{entity['${field.name}']}} </h5>
                                 % end

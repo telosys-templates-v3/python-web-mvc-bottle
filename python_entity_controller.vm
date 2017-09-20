@@ -10,14 +10,10 @@ from bottle import view, request, route, template
 import datetime
 
 from services import ${entity.name}_service as commons_entity_service
-from serializer.${entity.name}_serializer import ${entity.name}JsonSerializer
 from entities.$entity.name import $entity.name
-
 from controllers.commons import common_controller
 
 ${entity.name.toLowerCase()}_service = commons_entity_service.${entity.name}Service()
-json_serializer = ${entity.name}JsonSerializer()
-
 #if( $entity.hasCompositePrimaryKey() )
 #foreach( $field in $entity.attributes )
 #if( $field.isFK() )
@@ -25,9 +21,7 @@ json_serializer = ${entity.name}JsonSerializer()
 #set( $foreign_table_cap = $field.referencedEntityName )
 #set( $foreign_table = $fn.toLowerCase($field.referencedEntityName) )
 from controllers.${foreign_table_cap}_controller import ${foreign_table}_service
-from serializer.${foreign_table_cap}_serializer import ${foreign_table_cap}JsonSerializer
-${foreign_table}_json_serializer = ${foreign_table_cap}JsonSerializer()
-list_${foreign_table} = common_controller.list_foreign_keys(${foreign_table}_service, ${foreign_table}_json_serializer)
+list_${foreign_table} = common_controller.list_foreign_keys(${foreign_table}_service)
 
 #set( $list = $list + "list_" + $foreign_table + "=list_" + $foreign_table + ", ")
 #set( $select = $select + "select_" + $foreign_table + "=select_" + $foreign_table + ", ")
@@ -42,9 +36,7 @@ list_${foreign_table} = common_controller.list_foreign_keys(${foreign_table}_ser
 #set( $foreign_table_cap = $field.referencedEntityName )
 #set( $foreign_table = $fn.toLowerCase($field.referencedEntityName) )
 from controllers.${foreign_table_cap}_controller import ${foreign_table}_service
-from serializer.${foreign_table_cap}_serializer import ${foreign_table_cap}JsonSerializer
-${foreign_table}_json_serializer = ${foreign_table_cap}JsonSerializer()
-list_${foreign_table} = common_controller.list_foreign_keys(${foreign_table}_service, ${foreign_table}_json_serializer)
+list_${foreign_table} = common_controller.list_foreign_keys(${foreign_table}_service)
 
 #set( $list = $list + "list_" + $foreign_table + "=list_" + $foreign_table + ", ")
 #set( $select = $select + "select_" + $foreign_table + "=select_" + $foreign_table + ", ")
@@ -57,7 +49,7 @@ list_${foreign_table} = common_controller.list_foreign_keys(${foreign_table}_ser
 def get_all():
     try:
         entities = ${entity.name.toLowerCase()}_service.find_all()
-        return common_controller.get_all(json_serializer, entities, "${entity.name}", "")
+        return common_controller.get_all(entities, "${entity.name}", "")
     except Exception as e:
         return common_controller.answer(e, "danger")
 
@@ -159,11 +151,11 @@ def delete($entity.keyAttributesNamesAsString(', ')):
     try:
         result = ${entity.name.toLowerCase()}_service.delete_by_id($entity.keyAttributesNamesAsString(', '))
         message = common_controller.delete(result)
-        list = [json_serializer.to_json(entity) for entity in entities]
+        list = [entity.to_dict() for entity in entities]
         output = template('${entity.name}.tpl', list=list, footer=message)
         return {"body": output}  
     except Exception as e:
         message = common_controller.answer(e, "danger")
-        list = [json_serializer.to_json(entity) for entity in entities]
+        list = [entity.to_dict() for entity in entities]
         output = template('${entity.name}.tpl', list=list, footer=message)
         return {"body": output}  

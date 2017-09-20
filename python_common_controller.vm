@@ -21,14 +21,14 @@ def answer(message, mode):
     return answer
 
 
-def list_foreign_keys(entity_service, json_serializer):
+def list_foreign_keys(entity_service):
     entity_fk = entity_service.find_all()
-    list = [json_serializer.to_json(entity) for entity in entity_fk]
+    list = [entity.to_dict() for entity in entity_fk]
     return list
 
 
-def get_all(json_serializer, entities, entity_class, footer):
-    list = [json_serializer.to_json(entity) for entity in entities]
+def get_all(entities, entity_class, footer):
+    list = [entity.to_dict() for entity in entities]
     output = template('{}.tpl'.format(entity_class), list=list, footer=footer)
     return {"body": output}
 
