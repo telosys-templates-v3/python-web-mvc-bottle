@@ -10,7 +10,7 @@ from bottle import view, request, route, template
 import datetime
 
 from services import ${entity.name}_service as commons_entity_service
-from entities.$entity.name import $entity.name
+from entities.${entity.name}_class import $entity.name
 from controllers.commons import common_controller
 
 ${entity.name.toLowerCase()}_service = commons_entity_service.${entity.name}Service()
@@ -65,7 +65,13 @@ def form_for_create():
 @view("navigation_bar.tpl")
 def form_for_update($entity.keyAttributesNamesAsString(', ')):
     entity = ${entity.name.toLowerCase()}_service.find_by_id($entity.keyAttributesNamesAsString(', '))
-#foreach( $attribute in $entity.attributes )
+#if( $entity.hasCompositePrimaryKey() )
+#foreach( $attribute in $entity.keyAttributes )
+#set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
+    select_${foreign_key} = ${foreign_key}_service.find_by_id(entity.$attribute.name).to_dict()
+#end
+#end
+#foreach( $attribute in $entity.nonKeyAttributes )
 #if( $attribute.isFK() )
 #set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
     select_${foreign_key} = ${foreign_key}_service.find_by_id(entity.$attribute.name).to_dict()
@@ -147,15 +153,16 @@ def update($entity.keyAttributesNamesAsString(', ')):
 @route('/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', '<', '>')')
 @view('navigation_bar.tpl')
 def delete($entity.keyAttributesNamesAsString(', ')):
-    entities = ${entity.name.toLowerCase()}_service.find_all()
     try:
         result = ${entity.name.toLowerCase()}_service.delete_by_id($entity.keyAttributesNamesAsString(', '))
         message = common_controller.delete(result)
+        entities = ${entity.name.toLowerCase()}_service.find_all()
         list = [entity.to_dict() for entity in entities]
-        output = template('${entity.name}.tpl', list=list, footer=message)
+        output = template('${entity.name}_list.tpl', list=list, message=message)
         return {"body": output}  
     except Exception as e:
         message = common_controller.answer(e, "danger")
+        entities = ${entity.name.toLowerCase()}_service.find_all()
         list = [entity.to_dict() for entity in entities]
-        output = template('${entity.name}.tpl', list=list, footer=message)
+        output = template('${entity.name}_list.tpl', list=list, message=message)
         return {"body": output}  

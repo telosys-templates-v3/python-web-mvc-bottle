@@ -57,27 +57,30 @@
                         <div class="form-group">
                             <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
                             <div class="col-sm-8">
+                                % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                % if $foreign_table == select_$fn.toLowerCase($foreign_table) : 
+                                <a href="${url}$fn.toLowerCase($foreign_table)/form/{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+                                </a>
+                                % end
+                                % end
                                 <select id='$field.name' name='$field.name' class="selectpicker">
-                                    % if form == "Update" :
-                                    <optgroup label="">
-                                        <option value="{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}}" selected>{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{select_${fn.toLowerCase($foreign_table)}['$field.name']}} #end</option>
-                                        <option data-divider="true" ></option>
-                                    </optgroup>
-                                    <optgroup label="All the list">
-                                        <option value=""></option>
+                                    % if form == "Update":
                                         % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                        % if $foreign_table == select_$fn.toLowerCase($foreign_table) :
+                                        <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" selected>{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                        % else:
                                         <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
                                         % end
-                                    </optgroup>
+                                        % end
                                     % elif form == "Create" :
-                                    <option value=""></option>
                                         % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
                                         <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} - #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
                                         % end
                                     % end
                                 </select>
                                 <a href="${url}$fn.toLowerCase($foreign_table)/form">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
                                 </a>
                             </div>
                         </div>
@@ -102,27 +105,26 @@
                         <div class="form-group">
                             <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
                             <div class="col-sm-8">
+                                <a href="${url}$fn.toLowerCase($foreign_table)/form/${entity.keyAttributesNamesAsString('/')}">
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+                                </a>
                                 <select id='$field.name' name='$field.name' class="selectpicker">
                                     % if form == "Create" :
-                                    <option value=""></option>
-                                    % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
-                                    <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} - #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
-                                    % end
-                                    % elif form == "Update" :
-                                    <optgroup label="">
-                                        <option value="{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}}" selected>{{select_${fn.toLowerCase($foreign_table)}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{select_${fn.toLowerCase($foreign_table)}['$field.name']}} #end</option>
-                                        <option data-divider="true" ></option>
-                                    </optgroup>
-                                    <optgroup label="All the list">
-                                        <option value=""></option>
                                         % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
+                                        <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} - #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                        % end
+                                    % elif form == "Update" :
+                                        % for $foreign_table in list_$fn.toLowerCase($foreign_table):
+                                        % if $foreign_table == select_$fn.toLowerCase($foreign_table):
+                                        <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" selected >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
+                                        % else:
                                         <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} : #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
                                         % end
-                                    </optgroup>
+                                        % end
                                     % end
                                 </select>
                                 <a href="${url}$fn.toLowerCase($foreign_table)/form">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
                                 </a>
                             </div>
                         </div>

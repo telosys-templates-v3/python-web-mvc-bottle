@@ -27,9 +27,9 @@ def list_foreign_keys(entity_service):
     return list
 
 
-def get_all(entities, entity_class, footer):
+def get_all(entities, entity_class, message):
     list = [entity.to_dict() for entity in entities]
-    output = template('{}.tpl'.format(entity_class), list=list, footer=footer)
+    output = template('{}_list.tpl'.format(entity_class), list=list, message=message)
     return {"body": output}
 
 
