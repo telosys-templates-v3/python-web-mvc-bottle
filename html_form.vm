@@ -57,14 +57,7 @@
                         <div class="form-group">
                             <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
                             <div class="col-sm-8">
-                                % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
-                                % if $foreign_table == select_$fn.toLowerCase($foreign_table) : 
-                                <a href="${url}$fn.toLowerCase($foreign_table)/form/{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-                                </a>
-                                % end
-                                % end
-                                <select id='$field.name' name='$field.name' class="selectpicker">
+                                <select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$fn.toLowerCase($foreign_table)', event)">
                                     % if form == "Update":
                                         % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
                                         % if $foreign_table == select_$fn.toLowerCase($foreign_table) :
@@ -79,8 +72,8 @@
                                         % end
                                     % end
                                 </select>
-                                <a href="${url}$fn.toLowerCase($foreign_table)/form">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+                                <a id="$fn.toLowerCase($foreign_table)" href="${url}$fn.toLowerCase($foreign_table)/form/{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
                                 </a>
                             </div>
                         </div>
@@ -105,10 +98,7 @@
                         <div class="form-group">
                             <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
                             <div class="col-sm-8">
-                                <a href="${url}$fn.toLowerCase($foreign_table)/form/${entity.keyAttributesNamesAsString('/')}">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-                                </a>
-                                <select id='$field.name' name='$field.name' class="selectpicker">
+                                <select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$fn.toLowerCase($foreign_table)', event)">
                                     % if form == "Create" :
                                         % for $foreign_table in list_$fn.toLowerCase($foreign_table) :
                                         <option value="{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}" >{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}} - #foreach( $field in $entity.nonKeyAttributes ){{${foreign_table}['$field.name']}} #end</option>
@@ -123,8 +113,8 @@
                                         % end
                                     % end
                                 </select>
-                                <a href="${url}$fn.toLowerCase($foreign_table)/form">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+                                <a id="$fn.toLowerCase($foreign_table)" href="${url}$fn.toLowerCase($foreign_table)/form/{{${foreign_table}['$entity.keyAttributesNamesAsString('')']}}">
+                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
                                 </a>
                             </div>
                         </div>
@@ -170,7 +160,7 @@
 
 #foreach( $field in $entity.attributes )
 #if( $field.isTemporalType() )
-<script type="text/javascript">
+<script>
 $(document).ready(function() {
     $(function () {
         $('${SHARP}${field.name}').datepicker({
@@ -181,3 +171,23 @@ $(document).ready(function() {
 </script>
 #end
 #end
+
+<script>
+    function setLink(element, id) {
+        var aElement = document.getElementById(element);
+        var link = `http://localhost:3000/${DOLLAR}{element}/form/${DOLLAR}{id.target.value}`;
+        aElement.setAttribute('href', link);
+    }
+
+#foreach( $field in $entity.attributes )
+#if( $field.isTemporalType() )
+$(document).ready(function() {
+    $(function () {
+        $('${SHARP}${field.name}').datepicker({
+            format: 'yyyy-mm-dd'
+        });
+    });
+});
+#end
+#end
+</script>
