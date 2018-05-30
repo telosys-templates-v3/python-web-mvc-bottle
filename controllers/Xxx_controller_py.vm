@@ -1,8 +1,6 @@
 # Bottle controller for entity ${entity.name}
 # Created on $today.date ( Time $today.time )
-##
-## #set( $check_fk = false )
-##
+
 from bottle import view, request, route, template
 import datetime
 
@@ -18,7 +16,6 @@ ${fn.toLowerCase($entity.name)}_service = ${entity.name}Service()
 #set( $list = "" )
 #foreach( $field in $entity.nonKeyAttributes )
 #if( $field.isFK() )
-## #set( $check_fk = true )
 #set( $foreign_table = ${fn.toLowerCase($field.referencedEntityName)} )
 from services.${field.referencedEntityName}_service import ${field.referencedEntityName}Service
 ${fn.toLowerCase($field.referencedEntityName)}_service = ${field.referencedEntityName}Service()
@@ -53,12 +50,14 @@ def print_list(message=""):
 @view("navigation_bar.tpl")
 def form_for_create():
     # referenced entity with nothing selected => None
+#* 
 #if( $entity.hasCompositePrimaryKey() )
 #foreach( $attribute in $entity.keyAttributes )
 #set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
     list_${foreign_key} = ${foreign_key}_service.find_all_list_items(None)
 #end
 #end
+*#
 #foreach( $attribute in $entity.nonKeyAttributes )
 #if( $attribute.isFK() )
 #set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
