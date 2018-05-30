@@ -21,7 +21,7 @@
 							<span class="glyphicon glyphicon-leaf"></span>
 							{{form}} $entity.name
                             %if form == "Update" :
-                            <a href="${entity.name.toLowerCase()}/form">
+                            <a href="/${entity.name.toLowerCase()}/form">
                                 <button type="button" formaction="/${entity.name.toLowerCase()}/form" class="btn btn-default pull-right">
                                     <span class="glyphicon glyphicon-plus"></span>
                                 </button>
@@ -131,12 +131,16 @@
                     </div>
                     % elif form == "Update" : 
                     <div class="panel-footer">
+<!--
                         <a href="/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)">
                             <button type="button" class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
                         </a>
                         <a href="/${entity.name.toLowerCase()}/update/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)">
                                 <button type="submit" formaction="/${entity.name.toLowerCase()}/update/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
                         </a>
+-->
+                        <button type="submit" formaction="/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)"  class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+                        <button type="submit" formaction="/${entity.name.toLowerCase()}/update" formmethod="post" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
                         <div class="clearfix"></div>
                     </div>
                     % end

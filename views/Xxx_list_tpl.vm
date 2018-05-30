@@ -5,6 +5,9 @@
   <li class="breadcrumb-item active">${entity.name}</li>
 </ol>
 
+<script>
+history.pushState(null, "", '/${entity.name.toLowerCase()}');
+</script>
 
 <div class="container">
     <h2></h2>
