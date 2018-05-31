@@ -5,26 +5,26 @@ from bottle import view, request, route, template
 import datetime
 
 from controllers.commons.util import FORM_CREATE_MODE, FORM_UPDATE_MODE, create_msg, delete_msg, update_msg, error_msg
+
 # '$entity.name' entity class 
 from entities.${entity.name}_class import $entity.name 
-
-# main service for '$entity.name' entity  
+# '$entity.name' entity service
 from services.${entity.name}_service import ${entity.name}Service
 ${fn.toLowerCase($entity.name)}_service = ${entity.name}Service()
 
 # other services for referenced entities 
 #set( $list = "" )
-#foreach( $field in $entity.nonKeyAttributes )
-#if( $field.isFK() )
-#set( $foreign_table = ${fn.toLowerCase($field.referencedEntityName)} )
-from services.${field.referencedEntityName}_service import ${field.referencedEntityName}Service
-${fn.toLowerCase($field.referencedEntityName)}_service = ${field.referencedEntityName}Service()
+#foreach( $referencedEntity in $entity.referencedEntityTypes() )
+#set( $referencedEntityLC = ${fn.toLowerCase($referencedEntity)} )
+# $referencedEntity / $referencedEntityLC
+from services.${referencedEntity}_service import ${referencedEntity}Service
+${referencedEntityLC}_service = ${referencedEntity}Service()
 #if( $list != "" )
 #set( $list = $list + ", " )
 #end
-#set( $list = $list + "list_" + $foreign_table + "=list_" + $foreign_table )
-#end
-#end
+#set( $list = $list + "list_" + $referencedEntityLC + "=list_" + $referencedEntityLC )
+#end ## end-foreach
+## -----------------
 
 ${entity.name.toUpperCase()}_FORM_TPL = "${entity.name}_form.tpl"
 ${entity.name.toUpperCase()}_LIST_TPL = "${entity.name}_list.tpl"
@@ -49,23 +49,22 @@ def print_list(message=""):
 @route('/${entity.name.toLowerCase()}/form')
 @view("navigation_bar.tpl")
 def form_for_create():
-    # referenced entity with nothing selected => None
+    # references with nothing selected => None
 #* 
-#if( $entity.hasCompositePrimaryKey() )
-#foreach( $attribute in $entity.keyAttributes )
-#set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
-    list_${foreign_key} = ${foreign_key}_service.find_all_list_items(None)
-#end
-#end
-*#
 #foreach( $attribute in $entity.nonKeyAttributes )
 #if( $attribute.isFK() )
 #set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
     list_${foreign_key} = ${foreign_key}_service.find_all_list_items(None)
 #end
 #end
+*#
+#foreach( $attribute in $entity.attributes )
+#if( $attribute.isFK() )
+#set( $referencedEntityLC = $fn.toLowerCase($attribute.referencedEntityName) )
+    list_${referencedEntityLC} = ${referencedEntityLC}_service.find_all_list_items(None)
+#end
+#end
     # Form without entity
-##    body = template(${entity.name.toUpperCase()}_FORM_TPL#if($check_fk), $list#else,#end form=FORM_CREATE_MODE, message="")
     body = template(${entity.name.toUpperCase()}_FORM_TPL, form=FORM_CREATE_MODE, message=""#if($list != ""), ${list}#end)
     return {"body": body}
 
@@ -78,24 +77,14 @@ def form_for_update($entity.keyAttributesNamesAsString(', ')):
     return form_with_entity(entity)
 
 def form_with_entity(entity, message=""):
-    # referenced entity with current value selected
-#* 
-#if( $entity.hasCompositePrimaryKey() )
-#foreach( $attribute in $entity.keyAttributes )
-#set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
-    list_${foreign_key} = ${foreign_key}_service.find_all_list_items(entity.$entity.keyAttributesNamesAsString(', '))
-#end
-#end
-*#
-#foreach( $attribute in $entity.nonKeyAttributes )
+    # references with current value selected
+#foreach( $attribute in $entity.attributes )
 #if( $attribute.isFK() )
-#set( $foreign_key = $fn.toLowerCase($attribute.referencedEntityName) )
-##    list_${foreign_key} = ${foreign_key}_service.find_all_list_items(entity.$entity.keyAttributesNamesAsString(', '))
-    list_${foreign_key} = ${foreign_key}_service.find_all_list_items(entity.${attribute.name})
+#set( $referencedEntityLC = $fn.toLowerCase($attribute.referencedEntityName) )
+    list_${referencedEntityLC} = ${referencedEntityLC}_service.find_all_list_items(entity.${attribute.name})
 #end
 #end
-##    body = template(${entity.name.toUpperCase()}_FORM_TPL#if($check_fk), $select#else, #end entity=entity.to_dict(), form=FORM_UPDATE_MODE, message=message)
-##    body = template(${entity.name.toUpperCase()}_FORM_TPL#if($check_fk), $list#else, #end entity=entity.to_dict(), form=FORM_UPDATE_MODE, message=message)
+
     body = template(${entity.name.toUpperCase()}_FORM_TPL, entity=entity.to_dict(), form=FORM_UPDATE_MODE, message=message#if($list != ""), ${list}#end)
     return {"body": body}
 
