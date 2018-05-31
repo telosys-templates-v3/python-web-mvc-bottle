@@ -1,8 +1,8 @@
 <div class="panel-group">
     <div class="panel panel-{{!mode}}">
         <div class="panel-heading">
-            {{mode}}
-            <h5></h5>
+            <!-- {{mode}} -->
+            <!-- <h5></h5> -->
             <div class="panel panel-body">
                 {{!message}}
             </div>
