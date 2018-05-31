@@ -16,6 +16,8 @@
         <form class="form-horizontal" method="post" id="${entity.name.toLowerCase()}_form">
             <div class="panel-group">
                 <div class="panel panel-info">
+
+                    <!-- ---------- BUTTONS [List] and [+] -->
                     <div class="panel-heading">
 						<h3>
 							<span class="glyphicon glyphicon-leaf"></span>
@@ -34,12 +36,79 @@
                             </a>
 						</h3>
 					</div>
+
+					<!-- ---------- FIELDS -->
                     <div class="panel-body">
                         {{!message}}
-#if( ! $entity.hasCompositePrimaryKey())
-#foreach( $field in $entity.keyAttributes )
+## ---------------------------------------------------------------------------------
+## #if( ! $entity.hasCompositePrimaryKey())
+## ---------------------------------------------------------------------------------
+## MACRO "gen_field($field)"
+## ---------------------------------------------------------------------------------
+#macro( gen_field $field )
+#set($disabled="")
+#if( $field.isAutoIncremented() ) 
+#set($disabled="disabled")
+#end
+#set($required="")
+#if( $field.isNotNull() ) 
+#set($required="required")
+#end
+                        <!-- FIELD "${field.name}" #if($field.isKeyElement()) [PK] #end #if($field.isAutoIncremented()) AutoIncremented #end -->
                         <div class="form-group">
-                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())*#end</label>
+                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isNotNull())* #end</label>
+                            <div class="col-sm-8">
+                                % if form == "Create" :
+                                <input id="${field.name}" class="form-control" name='$field.name' value="" $required $disabled/>
+                                % elif form == "Update" : 
+#if( $field.isKeyElement() )
+                                <h5> {{entity['${field.name}']}} </h5>
+                                <input type="hidden" name="${field.name}" value="{{entity['${field.name}']}}">
+#else
+                                <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $required $disabled />
+#end
+                                % end
+                            </div>
+                        </div>
+#end
+## ---------------------------------------------------------------------------------
+## MACRO "gen_combo_box($field)"
+## ---------------------------------------------------------------------------------
+#macro( gen_combo_box $field )
+#set( $referencedEntityName = $fn.toLowerCase($field.referencedEntityName) )
+#set( $comboLinkId = "${field.name}Link" )
+## #set( $entity = $field.referencedEntity )
+  <!-- COMBO-BOX "${field.name}" #if($field.isKeyElement()) [PK] #end  -->
+  <div class="form-group">
+     <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
+     <div class="col-sm-8">
+        % currentValue = ""
+        <select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$comboLinkId', '${referencedEntityName}', event)">
+        % for item in list_${referencedEntityName} :
+           <option value="{{item['value']}}" 
+           % if item['selected'] == True:
+           selected="selected"
+           % currentValue = item['value']
+           % end
+           >{{item['label']}}</option>
+        % end
+        </select>
+        <!-- Button with link to referenced entity -->
+##        <a id="${referencedEntityName}" href="/${referencedEntityName}/form/{{item['value']}}">
+        <a id="${comboLinkId}" href="/${referencedEntityName}/form/{{currentValue}}" >
+##           <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+           <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+        </a>
+     </div>
+  </div>
+#end
+## ---------------------------------------------------------------------------------
+## --- KEY FIELD(S)
+## ---------------------------------------------------------------------------------
+#foreach( $field in $entity.keyAttributes )
+#* 
+                        <div class="form-group">
+                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())* #end</label>
                             <div class="col-sm-8">
                                 % if form == "Create" :
                                 <input id="${field.name}" class="form-control" name='$field.name' #if($entity.hasAutoIncrementedKey())value="auto value" disabled#end/>
@@ -49,13 +118,21 @@
                                 % end
                             </div>
                         </div>
-#end
+*#
+#if( $field.isFK() ) ## --- FK => COMBO BOX
+#gen_combo_box($field)
+#else
+#gen_field( $field )
+#end 
+#end ## foreach
+## --- NON KEY FIELDS
 #foreach( $field in $entity.nonKeyAttributes )
-#if( $field.isFK() )
+#if( $field.isFK() ) ## --- FK => COMBO BOX
+#* 
 #set( $foreign_table = $field.referencedEntityName )
 #set( $entity = $field.referencedEntity )
                         <div class="form-group">
-                            <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
+                            <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())* #end</label>
                             <div class="col-sm-8">
 								<select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$fn.toLowerCase($foreign_table)', event)">
                                      % for item in list_$fn.toLowerCase($foreign_table) :
@@ -71,9 +148,12 @@
                                 </a>
                             </div>
                         </div>
-#else
+*# 
+#gen_combo_box($field)
+#else ## --- NOT FK => STANDARD FIELD
+#* 
                         <div class="form-group">
-                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())*#end</label>
+                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())* #end</label>
                             <div class="col-sm-8">
                                 % if form == "Create" :
                                 <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='$field.name' value=""/>
@@ -82,45 +162,19 @@
                                 % end
                             </div>
                         </div>
-#end
-#end
-#else
-#foreach( $field in $entity.attributes )
-#if( $field.isFK() )
-#set( $foreign_table = $field.referencedEntityName )
-#set( $entity = $field.referencedEntity )
-                        <div class="form-group">
-                            <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
-                            <div class="col-sm-8">
-								<select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$fn.toLowerCase($foreign_table)', event)">
-                                     % for item in list_$fn.toLowerCase($foreign_table) :
-                                        <option value="{{item['value']}}" 
-                                        % if item['selected'] == True:
-                							selected="selected"
-            							% end
-            							>{{item['label']}}</option>
-                                     % end
-                                </select>
-                                <a id="$fn.toLowerCase($foreign_table)" href="/$fn.toLowerCase($foreign_table)/form/{{item['value']}}">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-                                </a>
-                            </div>
-                        </div>
-#else
-                        <div class="form-group">
-                            <label for="${field.name}" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
-                            <div class="col-sm-8">
-                                % if form == "Create" :
-                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='$field.name' value=""/>
-                                % elif form == "Update" :
-                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='${field.name}' value="{{entity['${field.name}']}}"/>
-                                % end
-                            </div>
-                        </div>
-#end
-#end
-#end
+*# 
+#gen_field( $field ) 
+#end ## if
+#end ## foreach
+## ---------------------------------------------------------------------------------
+## #else ## else / if( ! $entity.hasCompositePrimaryKey())
+## ---------------------------------------------------------------------------------
+## 
+## ---------------------------------------------------------------------------------
+## #end ## end / if( ! $entity.hasCompositePrimaryKey())
+## ---------------------------------------------------------------------------------
 #set( $entity = $table )
+                    <!-- ---------- BUTTONS [Save] and [Delete] -->
                     </div>
                     % if form == "Create" :
                     <div class="panel-footer text-center">
@@ -165,11 +219,13 @@ $(document).ready(function() {
 #end
 
 <script>
-    function setLink(element, id) {
-        var aElement = document.getElementById(element);
-        var link = `/${DOLLAR}{element}/form/${DOLLAR}{id.target.value}`;
-        aElement.setAttribute('href', link);
-    }
+function setLink(elementId, entity, event) {
+  //console.log("setLink("+elementId+","+entity+","+event.target.value);
+  var element = document.getElementById(elementId);
+  var link = `/${DOLLAR}{entity}/form/${DOLLAR}{event.target.value}`;
+  //console.log("link = "+link);
+  element.setAttribute('href', link);
+}
 
 #foreach( $field in $entity.attributes )
 #if( $field.isTemporalType() )
