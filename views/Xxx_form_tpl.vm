@@ -41,35 +41,50 @@
                     <div class="panel-body">
                         {{!message}}
 ## ---------------------------------------------------------------------------------
-## #if( ! $entity.hasCompositePrimaryKey())
+## MACRO "gen_field($field)"
+## ---------------------------------------------------------------------------------
+#macro( gen_label $field )
+#set($label=$field.name)
+#if( $field.isKeyElement() ) 
+#set($label="<u>${field.name}</u>") ## Primary Key => Underlined label
+#end
+#if( $field.isNotNull() ) 
+#set($label="${label} *")
+#end
+    <label for="${field.name}" class="col-sm-2">${label}</label>
+#end ## end of macro
+##
 ## ---------------------------------------------------------------------------------
 ## MACRO "gen_field($field)"
 ## ---------------------------------------------------------------------------------
 #macro( gen_field $field )
+##
 #set($disabled="")
 #if( $field.isAutoIncremented() ) 
 #set($disabled="disabled")
 #end
+##
 #set($required="")
 #if( $field.isNotNull() ) 
 #set($required="required")
 #end
-                        <!-- FIELD "${field.name}" #if($field.isKeyElement()) [PK] #end #if($field.isAutoIncremented()) AutoIncremented #end -->
-                        <div class="form-group">
-                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isNotNull())* #end</label>
-                            <div class="col-sm-8">
-                                % if form == "Create" :
-                                <input id="${field.name}" class="form-control" name='$field.name' value="" $required $disabled/>
-                                % elif form == "Update" : 
+##
+  <!-- FIELD "${field.name}" #if($field.isKeyElement()) [PK] #end #if($field.isAutoIncremented()) AutoIncremented #end -->
+  <div class="form-group">
+#gen_label($field)
+    <div class="col-sm-8">
+    % if form == "Create" :
+      <input id="${field.name}" class="form-control" name='$field.name' value="" $required $disabled/>
+    % elif form == "Update" : 
 #if( $field.isKeyElement() )
-                                <h5> {{entity['${field.name}']}} </h5>
-                                <input type="hidden" name="${field.name}" value="{{entity['${field.name}']}}">
+    <h5> {{entity['${field.name}']}} </h5>
+    <input type="hidden" name="${field.name}" value="{{entity['${field.name}']}}">
 #else
-                                <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $required $disabled />
+    <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $required $disabled />
 #end
-                                % end
-                            </div>
-                        </div>
+    % end
+    </div>
+  </div>
 #end
 ## ---------------------------------------------------------------------------------
 ## MACRO "gen_combo_box($field)"
@@ -77,101 +92,50 @@
 #macro( gen_combo_box $field )
 #set( $referencedEntityName = $fn.toLowerCase($field.referencedEntityName) )
 #set( $comboLinkId = "${field.name}Link" )
-## #set( $entity = $field.referencedEntity )
   <!-- COMBO-BOX "${field.name}" #if($field.isKeyElement()) [PK] #end  -->
   <div class="form-group">
-     <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())*#end</label>
-     <div class="col-sm-8">
-        % currentValue = ""
-        <select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$comboLinkId', '${referencedEntityName}', event)">
-        % for item in list_${referencedEntityName} :
-           <option value="{{item['value']}}" 
-           % if item['selected'] == True:
-           selected="selected"
-           % currentValue = item['value']
-           % end
-           >{{item['label']}}</option>
+#gen_label($field)
+    <div class="col-sm-8">
+      % currentValue = ""
+      <select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$comboLinkId', '${referencedEntityName}', event)">
+      % for item in list_${referencedEntityName} :
+        <option value="{{item['value']}}" 
+        % if item['selected'] == True:
+        selected="selected"
+        % currentValue = item['value']
         % end
-        </select>
-        <!-- Button with link to referenced entity -->
+      >{{item['label']}}</option>
+      % end
+      </select>
+      <!-- Button with link to referenced entity -->
 ##        <a id="${referencedEntityName}" href="/${referencedEntityName}/form/{{item['value']}}">
-        <a id="${comboLinkId}" href="/${referencedEntityName}/form/{{currentValue}}" >
+      <a id="${comboLinkId}" href="/${referencedEntityName}/form/{{currentValue}}" >
 ##           <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-           <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-        </a>
-     </div>
+        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
+      </a>
+    </div>
   </div>
 #end
 ## ---------------------------------------------------------------------------------
 ## --- KEY FIELD(S)
 ## ---------------------------------------------------------------------------------
 #foreach( $field in $entity.keyAttributes )
-#* 
-                        <div class="form-group">
-                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())* #end</label>
-                            <div class="col-sm-8">
-                                % if form == "Create" :
-                                <input id="${field.name}" class="form-control" name='$field.name' #if($entity.hasAutoIncrementedKey())value="auto value" disabled#end/>
-                                % elif form == "Update" :
-                                <h5> {{entity['${field.name}']}} </h5>
-                                <input type="hidden" name="${field.name}" value="{{entity['${field.name}']}}">
-                                % end
-                            </div>
-                        </div>
-*#
-#if( $field.isFK() ) ## --- FK => COMBO BOX
-#gen_combo_box($field)
+#if( $field.isFK() ) 
+#gen_combo_box($field) ## --- FK => COMBO BOX
 #else
-#gen_field( $field )
+#gen_field( $field ) ## --- NOT FK => STANDARD FIELD
 #end 
 #end ## foreach
-## --- NON KEY FIELDS
+## ---------------------------------------------------------------------------------
+## --- NON KEY FIELD(S)
+## ---------------------------------------------------------------------------------
 #foreach( $field in $entity.nonKeyAttributes )
-#if( $field.isFK() ) ## --- FK => COMBO BOX
-#* 
-#set( $foreign_table = $field.referencedEntityName )
-#set( $entity = $field.referencedEntity )
-                        <div class="form-group">
-                            <label for="$field.name" class="col-sm-2">$field.name #if($field.isDatabaseNotNull())* #end</label>
-                            <div class="col-sm-8">
-								<select id='$field.name' name='$field.name' class="selectpicker" onchange="setLink('$fn.toLowerCase($foreign_table)', event)">
-                                     % for item in list_$fn.toLowerCase($foreign_table) :
-                                        <option value="{{item['value']}}" 
-                                        % if item['selected'] == True:
-                							selected="selected"
-            							% end
-            							>{{item['label']}}</option>
-                                     % end
-                                </select>
-                                <a id="$fn.toLowerCase($foreign_table)" href="/$fn.toLowerCase($foreign_table)/form/{{item['value']}}">
-                                    <button type="button" name="fk" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-                                </a>
-                            </div>
-                        </div>
-*# 
-#gen_combo_box($field)
-#else ## --- NOT FK => STANDARD FIELD
-#* 
-                        <div class="form-group">
-                            <label for="${field.name}" class="col-sm-2">${field.name} #if($field.isDatabaseNotNull())* #end</label>
-                            <div class="col-sm-8">
-                                % if form == "Create" :
-                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='$field.name' value=""/>
-                                % elif form == "Update" : 
-                                <input id="${field.name}" class="form-control" #if($field.isDatabaseNotNull())required#end name='${field.name}' value="{{entity['${field.name}']}}"/>
-                                % end
-                            </div>
-                        </div>
-*# 
-#gen_field( $field ) 
-#end ## if
+#if( $field.isFK() ) 
+#gen_combo_box($field) ## --- FK => COMBO BOX
+#else 
+#gen_field( $field ) ## --- NOT FK => STANDARD FIELD
+#end
 #end ## foreach
-## ---------------------------------------------------------------------------------
-## #else ## else / if( ! $entity.hasCompositePrimaryKey())
-## ---------------------------------------------------------------------------------
-## 
-## ---------------------------------------------------------------------------------
-## #end ## end / if( ! $entity.hasCompositePrimaryKey())
 ## ---------------------------------------------------------------------------------
 #set( $entity = $table )
                     <!-- ---------- BUTTONS [Save] and [Delete] -->

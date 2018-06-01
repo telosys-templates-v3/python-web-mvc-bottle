@@ -13,8 +13,9 @@ from services.${entity.name}_service import ${entity.name}Service
 ${fn.toLowerCase($entity.name)}_service = ${entity.name}Service()
 
 # other services for referenced entities 
+#* 
 #set( $list = "" )
-#foreach( $referencedEntity in $entity.referencedEntityTypes() )
+#foreach( $referencedEntity in $entity.referencedEntityTypes($entity.attributes) )
 #set( $referencedEntityLC = ${fn.toLowerCase($referencedEntity)} )
 # $referencedEntity / $referencedEntityLC
 from services.${referencedEntity}_service import ${referencedEntity}Service
@@ -24,7 +25,25 @@ ${referencedEntityLC}_service = ${referencedEntity}Service()
 #end
 #set( $list = $list + "list_" + $referencedEntityLC + "=list_" + $referencedEntityLC )
 #end ## end-foreach
+# list : $list
+*# 
 ## -----------------
+#set( $list = "" )
+#foreach( $attribute in $entity.attributes )
+#if( $attribute.isFK() )
+#set( $referencedEntity   = $attribute.referencedEntityName)
+#set( $referencedEntityLC = $fn.toLowerCase($attribute.referencedEntityName) )
+# $referencedEntity / $referencedEntityLC
+from services.${referencedEntity}_service import ${referencedEntity}Service
+${referencedEntityLC}_service = ${referencedEntity}Service()
+#if( $list != "" )
+#set( $list = $list + ", " )
+#end
+#set( $list = $list + "list_" + $referencedEntityLC + "=list_" + $referencedEntityLC )
+#end
+#end
+# list : $list
+
 
 ${entity.name.toUpperCase()}_FORM_TPL = "${entity.name}_form.tpl"
 ${entity.name.toUpperCase()}_LIST_TPL = "${entity.name}_list.tpl"
