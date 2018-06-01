@@ -69,18 +69,23 @@
 #set($required="required")
 #end
 ##
+#set($type="")
+#if( ! $field.isTemporalType() ) 
+#set($type="type=${QUOT}$field.inputType${QUOT}")
+#end
+##
   <!-- FIELD "${field.name}" #if($field.isKeyElement()) [PK] #end #if($field.isAutoIncremented()) AutoIncremented #end -->
   <div class="form-group">
 #gen_label($field)
     <div class="col-sm-8">
     % if form == "Create" :
-      <input id="${field.name}" class="form-control" name='$field.name' value="" $required $disabled/>
+      <input id="${field.name}" class="form-control" name='$field.name' value="" $type placeholder="$field.inputType" $required $disabled/>
     % elif form == "Update" : 
 #if( $field.isKeyElement() )
     <h5> {{entity['${field.name}']}} </h5>
     <input type="hidden" name="${field.name}" value="{{entity['${field.name}']}}">
 #else
-    <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $required $disabled />
+    <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $type placeholder="$field.inputType" $required $disabled />
 #end
     % end
     </div>
@@ -142,9 +147,12 @@
                     </div>
                     % if form == "Create" :
                     <div class="panel-footer text-center">
+<!--
                         <a href="/${entity.name.toLowerCase()}/create">
                                 <button type="submit" formaction="/${entity.name.toLowerCase()}/create" name="non_fk" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
                         </a>
+-->
+                        <button type="submit" formmethod="post" formaction="/${entity.name.toLowerCase()}/create" name="non_fk" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
                         <div class="clearfix"></div>
                     </div>
                     % elif form == "Update" : 
@@ -157,8 +165,8 @@
                                 <button type="submit" formaction="/${entity.name.toLowerCase()}/update/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
                         </a>
 -->
-                        <button type="submit" formaction="/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)"  class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
-                        <button type="submit" formaction="/${entity.name.toLowerCase()}/update" formmethod="post" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                        <button type="submit" formmethod="post" formaction="/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)"  class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+                        <button type="submit" formmethod="post" formaction="/${entity.name.toLowerCase()}/update"  class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
                         <div class="clearfix"></div>
                     </div>
                     % end
@@ -168,6 +176,7 @@
     </div>
 </div>
 
+#*
 #foreach( $field in $entity.attributes )
 #if( $field.isTemporalType() )
 <script>
@@ -181,6 +190,7 @@ $(document).ready(function() {
 </script>
 #end
 #end
+*#
 
 <script>
 function setLink(elementId, entity, event) {
