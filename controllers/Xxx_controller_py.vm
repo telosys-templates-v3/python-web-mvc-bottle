@@ -2,9 +2,9 @@
 # Created on $today.date ( Time $today.time )
 
 from bottle import view, request, route, template
-import datetime
+## import datetime
 
-from controllers.commons.util import FORM_CREATE_MODE, FORM_UPDATE_MODE, create_msg, delete_msg, update_msg, error_msg
+from controllers.commons.util import *
 
 # '$entity.name' entity class 
 from entities.${entity.name}_class import $entity.name 
@@ -84,26 +84,33 @@ def form_with_entity(entity, message=""):
     list_${referencedEntityLC} = ${referencedEntityLC}_service.find_all_list_items(entity.${attribute.name})
 #end
 #end
-
+    prepare_entity_for_view(entity)
     body = template(${entity.name.toUpperCase()}_FORM_TPL, entity=entity.to_dict(), form=FORM_UPDATE_MODE, message=message#if($list != ""), ${list}#end)
     return {"body": body}
+
+def prepare_entity_for_view(entity):
+#foreach( $field in $entity.attributes )
+    if entity.${field.name} == None :
+        entity.${field.name} = ""
+#end
+    return
+
+def build_entity(request):
+    entity = ${entity.name}()
+#foreach( $field in $entity.attributes )
+#if( $field.isDateType() || $field.isTimestampType() )
+    entity.${field.name} = get_date(request, '${field.name}')
+#else
+    entity.${field.name} = request.forms.get('${field.name}')
+#end
+#end
+    return entity
 
 @route('/${entity.name.toLowerCase()}/create', method='POST')
 @view("navigation_bar.tpl")
 def create():
     try:
-        entity = ${entity.name}()
-#foreach( $field in $entity.attributes )
-#if( $field.isDateType() )
-        date_iso = request.forms.get('${field.name}')
-        if date_iso:
-            entity.${field.name} = datetime.datetime.strptime(date_iso, "%Y-%m-%d")
-        else:
-            entity.${field.name} = None
-#else
-        entity.${field.name} = request.forms.get('${field.name}')
-#end
-#end
+        entity = build_entity(request)
         # Insert in database
         result = ${entity.name.toLowerCase()}_service.insert(entity)
         message = create_msg(result, ${entity.name})
@@ -115,18 +122,7 @@ def create():
 @view('navigation_bar.tpl')
 def update():
     try:
-        entity = ${entity.name}()
-#foreach( $field in $entity.attributes )
-#if( $field.isDateType() )
-        date_iso = request.forms.get('${field.name}')
-        if date_iso:
-            entity.${field.name} = datetime.datetime.strptime(date_iso, "%Y-%m-%d")
-        else:
-            entity.${field.name} = None
-#else
-        entity.${field.name} = request.forms.get('${field.name}')
-#end
-#end
+        entity = build_entity(request)
         # Update in database
         result = ${entity.name.toLowerCase()}_service.update(entity)
         message = update_msg(result)

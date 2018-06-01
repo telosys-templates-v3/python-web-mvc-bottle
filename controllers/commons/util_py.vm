@@ -1,12 +1,21 @@
 ${SHARP} Controllers utility functions
 ${SHARP} Created on $today.date ( Time $today.time )
 
+import datetime
 import bottle
 
 # ----------------------------------------------------------------------------------------------
 # CONST 
 FORM_CREATE_MODE = "Create"
 FORM_UPDATE_MODE = "Update"
+# ----------------------------------------------------------------------------------------------
+
+def get_date(request, fieldName):
+    date_iso = request.forms.get(fieldName)
+    if date_iso != "" and date_iso != None :
+        return datetime.datetime.strptime(date_iso, "%Y-%m-%d")
+    else:
+        return None
 # ----------------------------------------------------------------------------------------------
 
 def message(msg, mode):
