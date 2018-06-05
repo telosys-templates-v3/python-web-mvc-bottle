@@ -79,13 +79,13 @@
 #gen_label($field)
     <div class="col-sm-8">
     % if form == "Create" :
-      <input id="${field.name}" class="form-control" name='$field.name' value="" $type placeholder="$field.inputType" $required $disabled/>
+      <input id="${field.name}" class="form-control" name='$field.name' value="" $type placeholder="$field.neutralType" $required $disabled/>
     % elif form == "Update" : 
 #if( $field.isKeyElement() )
     <h5> {{entity['${field.name}']}} </h5>
     <input type="hidden" name="${field.name}" value="{{entity['${field.name}']}}">
 #else
-    <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $type placeholder="$field.inputType" $required $disabled />
+    <input id="${field.name}" class="form-control" name='${field.name}' value="{{entity['${field.name}']}}" $type placeholder="$field.neutralType" $required $disabled />
 #end
     % end
     </div>
