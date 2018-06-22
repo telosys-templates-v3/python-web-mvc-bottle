@@ -1,12 +1,17 @@
-#set( $prefix = "{{" + $entity.name + "['")
-#set( $suffix = "']}}" )
+##
+## #set( $entityNameForURI = ${entity.name.toLowerCase()} )
+## #set( $prefix = "{{" + $entity.name + "['")
+## #set( $entityIdForURI = $entity.keyAttributesNamesAsString("/", $prefix, "']}}" ) )
+#set( $entityNameForURI = ${entity.name.toLowerCase()} )
+#set( $entityIdForURI = $entity.keyAttributesNamesAsString("/", "{{entity['", "']}}" ) )
+##
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="/home">Home</a></li>
   <li class="breadcrumb-item active">${entity.name}</li>
 </ol>
 
 <script>
-history.pushState(null, "", '/${entity.name.toLowerCase()}');
+history.pushState(null, "", '/${entityNameForURI}');
 </script>
 
 <div class="container">
@@ -14,15 +19,29 @@ history.pushState(null, "", '/${entity.name.toLowerCase()}');
     <div class="container">
         <div class="panel-group">
             <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h3>
-                        <span class="glyphicon glyphicon-leaf"></span>
+
+<!-- ---------- HEAD : TITLE with BUTTONS [List] and [Create] -->
+<div class="panel-heading">
+  <h4>
+	<span class="glyphicon glyphicon-list"></span>
+	<span class="font-weight-bold">&nbsp; ${entity.name} List</span>
+	<div class="pull-right"> <!-- Buttons -->
+	  <!-- [Create] -->
+      <a href="/${entityNameForURI}/form" title="Create a new ${entity.name.toLowerCase()}">
+        <button type="button" class="btn btn-success "><span class="glyphicon glyphicon-plus"></span> Create</button></a>
+    </div>
+  </h4>
+#*
+  <h3>
+                        <span class="glyphicon glyphicon-list"></span>
                         ${entity.name} List
-                        <a href="/${entity.name.toLowerCase()}/form" title="Create a new entity">
+                        <a href="/${entityNameForURI}/form" title="Create a new ${entity.name}">
                             <button type="button" class="btn btn-success pull-right"><span class="glyphicon glyphicon-plus"></span> Create</button>
                         </a>
-                    </h3>
-                </div>
+  </h3>
+*#
+</div>
+
                 <div class="panel-body">
 
                     <h1></h1>
@@ -35,14 +54,15 @@ history.pushState(null, "", '/${entity.name.toLowerCase()}');
 #end
                         </tr>
                         </thead>
+
                         <tbody>
-                        % for $entity.name in list :
-                        <tr onclick="window.location.href = '/${entity.name.toLowerCase()}/form/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)';" style="cursor: pointer">
+                        % for entity in list :
+                        <tr onclick="window.location.href = '/${entityNameForURI}/form/${entityIdForURI}';" style="cursor: pointer">
 #foreach( $field in $entity.attributes )
-                                <td>{{${entity.name}['${field.name}']}}</td>
+                                <td>{{entity['${field.name}']}}</td>
 #end
                                 <td>
-                                    <a href="/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)" title="Delete this entity"><span
+                                    <a href="/${entityNameForURI}/delete/${entityIdForURI}" title="Delete this entity"><span
                                             class="glyphicon glyphicon-trash"></span></a>
                                 </td>
                         </tr>

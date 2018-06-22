@@ -1,6 +1,4 @@
 ##
-## #set( $table = $entity )
-## #set( $entity = $table )
 #set( $entityNameForURI = ${entity.name.toLowerCase()} )
 #set( $entityIdForURI = $entity.keyAttributesNamesAsString("/", "{{entity['", "']}}" ) )
 ##
@@ -103,9 +101,9 @@ history.pushState(null, "", "/${entityNameForURI}/form/${entityIdForURI}");
 
 <!-- ---------- HEAD : TITLE with BUTTONS [List] and [Create] -->
 <div class="panel-heading">
-  <h3>
-	<span class="glyphicon glyphicon-leaf"></span>
-	{{form}} $entity.name
+  <h4>
+	<span class="glyphicon glyphicon-file"></span>
+	<span class="font-weight-bold">&nbsp;{{form}} $entity.name</span>  
 	<div class="pull-right"> <!-- Buttons -->
 	<!-- [List] -->
     <a href="/${entityNameForURI}" title="Go to list">
@@ -117,7 +115,7 @@ history.pushState(null, "", "/${entityNameForURI}/form/${entityIdForURI}");
      <button type="button" class="btn btn-success "><span class="glyphicon glyphicon-plus"></span> Create</button></a>
     % end
     </div>
-  </h3>
+  </h4>
 </div>
 
 <!-- ---------- FIELDS -->
