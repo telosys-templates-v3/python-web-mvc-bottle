@@ -1,4 +1,3 @@
-#set( $url = "http://localhost:3000/" )
 <ol class="breadcrumb">
   <li class="breadcrumb-item active">Home</li>
 </ol>
@@ -14,7 +13,7 @@
                     <ul class="list-group">
 #foreach( $entity in $selectedEntities )
                         <li class = "list-group-item list-group-item-action">
-                            <a href="${url}${entity.name.toLowerCase()}">${entity.name}</a>
+                            <a href="/${entity.name.toLowerCase()}">${entity.name}</a>
                         </li>
 #end
                     </ul>
