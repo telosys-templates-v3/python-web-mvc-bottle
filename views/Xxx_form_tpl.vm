@@ -1,59 +1,22 @@
 ##
-#set( $table = $entity )
-#set( $prefix = "{{entity['" )
-#set( $suffix = "']}}" )
+## #set( $table = $entity )
+## #set( $entity = $table )
+#set( $entityNameForURI = ${entity.name.toLowerCase()} )
+#set( $entityIdForURI = $entity.keyAttributesNamesAsString("/", "{{entity['", "']}}" ) )
 ##
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/home">Home</a></li>
-    <li class="breadcrumb-item active"><a href="/${entity.name.toLowerCase()}">$entity.name</a></li>
-    <li class="breadcrumb-item active">{{form}} $entity.name</li>
-</ol>
-
-
-<div class="container">
-    <h2></h2>
-    <div class="container">
-        <form class="form-horizontal" method="post" id="${entity.name.toLowerCase()}_form">
-            <div class="panel-group">
-                <div class="panel panel-info">
-
-                    <!-- ---------- BUTTONS [List] and [+] -->
-                    <div class="panel-heading">
-						<h3>
-							<span class="glyphicon glyphicon-leaf"></span>
-							{{form}} $entity.name
-                            %if form == "Update" :
-                            <a href="/${entity.name.toLowerCase()}/form">
-                                <button type="button" formaction="/${entity.name.toLowerCase()}/form" class="btn btn-default pull-right">
-                                    <span class="glyphicon glyphicon-plus"></span>
-                                </button>
-                            </a>
-                            % end
-                            <a href="/${entity.name.toLowerCase()}">
-                                <button type="button" formaction="/${entity.name.toLowerCase()}" class="btn btn-link pull-right">
-                                    List
-                                </button>
-                            </a>
-						</h3>
-					</div>
-
-					<!-- ---------- FIELDS -->
-                    <div class="panel-body">
-                        {{!message}}
 ## ---------------------------------------------------------------------------------
-## MACRO "gen_field($field)"
+## MACRO "gen_label($field)"
 ## ---------------------------------------------------------------------------------
 #macro( gen_label $field )
 #set($label=$field.name)
-#if( $field.isKeyElement() ) 
+#if( $field.isKeyElement() )
 #set($label="<u>${field.name}</u>") ## Primary Key => Underlined label
 #end
 #if( $field.isNotNull() ) 
 #set($label="${label} *")
 #end
     <label for="${field.name}" class="col-sm-2">${label}</label>
-#end ## end of macro
-##
+#end
 ## ---------------------------------------------------------------------------------
 ## MACRO "gen_field($field)"
 ## ---------------------------------------------------------------------------------
@@ -113,13 +76,53 @@
       % end
       </select>
       <!-- Button with link to referenced entity -->
-##      <a id="${comboLinkId}" href="/${referencedEntityName}/form/{{currentValue}}" >
-##        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-new-window"></span></button>
-##      </a>
       <button type="button" class="btn btn-default" onclick="gotoPage('${field.name}', '${referencedEntityName}')" ><span class="glyphicon glyphicon-new-window"></span></button>
     </div>
   </div>
 #end
+## ---------------------------------------------------------------------------------
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+    <li class="breadcrumb-item active"><a href="/${entity.name.toLowerCase()}">$entity.name</a></li>
+    <li class="breadcrumb-item active">{{form}} $entity.name</li>
+</ol>
+
+%if form == "Update" :
+<script>
+history.pushState(null, "", "/${entityNameForURI}/form/${entityIdForURI}");
+</script>
+% end
+
+<div class="container">
+    <h2></h2>
+    <div class="container">
+        <form class="form-horizontal" method="post" id="${entity.name.toLowerCase()}_form">
+            <div class="panel-group">
+                <div class="panel panel-info">
+
+<!-- ---------- HEAD : TITLE with BUTTONS [List] and [Create] -->
+<div class="panel-heading">
+  <h3>
+	<span class="glyphicon glyphicon-leaf"></span>
+	{{form}} $entity.name
+	<div class="pull-right"> <!-- Buttons -->
+	<!-- [List] -->
+    <a href="/${entityNameForURI}" title="Go to list">
+     <button type="button" class="btn btn-primary "> <span class="glyphicon glyphicon-list"></span> List</button></a>
+    %if form == "Update" :
+    &nbsp;
+	<!-- [Create] -->
+    <a href="/${entityNameForURI}/form" title="Create a new ${entity.name.toLowerCase()}">
+     <button type="button" class="btn btn-success "><span class="glyphicon glyphicon-plus"></span> Create</button></a>
+    % end
+    </div>
+  </h3>
+</div>
+
+<!-- ---------- FIELDS -->
+<div class="panel-body">
+  {{!message}}
 ## ---------------------------------------------------------------------------------
 ## --- KEY FIELD(S)
 ## ---------------------------------------------------------------------------------
@@ -143,24 +146,25 @@
 
 #end ## foreach
 ## ---------------------------------------------------------------------------------
-#set( $entity = $table )
-                    <!-- ---------- BUTTONS [Save] and [Delete] -->
-                    </div>
-                    % if form == "Create" :
-                    <div class="panel-footer text-center">
-                        <button type="submit" formmethod="post" formaction="/${entity.name.toLowerCase()}/create" name="non_fk" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
-                        <div class="clearfix"></div>
-                    </div>
-                    % elif form == "Update" : 
-                    <div class="panel-footer">
-                        <button type="submit" formmethod="post" formaction="/${entity.name.toLowerCase()}/delete/$entity.keyAttributesNamesAsString('/', $prefix, $suffix)"  class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
-                        <button type="submit" formmethod="post" formaction="/${entity.name.toLowerCase()}/update"  class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
-                        <div class="clearfix"></div>
-                    </div>
-                    % end
+</div>
+
+<!-- ---------- BUTTONS [Save] and [Delete] -->
+% if form == "Create" :
+  <div class="panel-footer text-center">
+    <button type="submit" formmethod="post" formaction="/${entityNameForURI}/create" name="non_fk" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+    <div class="clearfix"></div>
+  </div>
+% elif form == "Update" : 
+  <div class="panel-footer">
+    <button type="submit" formmethod="post" formaction="/${entityNameForURI}/delete/$entityIdForURI"  class="btn btn-danger pull-right"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+    <button type="submit" formmethod="post" formaction="/${entityNameForURI}/update"  class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+    <div class="clearfix"></div>
+  </div>
+% end
                 </div>
             </div>
         </form>
+
     </div>
 </div>
 
