@@ -8,7 +8,7 @@
     <div class="container">
         <div class="panel-group">
             <div class="panel panel-info">
-                <div class="panel-heading"><h3><span class="glyphicon glyphicon-leaf"></span> Home</h3></div>
+                <div class="panel-heading"><h3><span class="glyphicon glyphicon-home"></span> Home</h3></div>
                 <div class="panel-body">
                     <ul class="list-group">
 #foreach( $entity in $selectedEntities )

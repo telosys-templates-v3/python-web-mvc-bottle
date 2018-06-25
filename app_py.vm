@@ -1,13 +1,37 @@
 ${SHARP} Python entry point to run the web app
 ${SHARP} Created on $today.date ( Time $today.time )
 
-import bottle
-
-from controllers.commons.home_controller import *
+from bottle import route, view, template
 
 #foreach( $entity in $selectedEntities )
 from controllers.${entity.name}_controller import *
 #end
 
+@route('/static/<filename:path>')
+def static(filename):
+    '''
+    Route definition to serve static files
+    '''
+    return bottle.static_file(filename, root='./static')
+
+@route('/')
+## @route('/home')
+@view("navigation_bar.tpl")
+def home():
+    '''
+    Route definition to serve the front "index"/"home" page
+    '''
+    body = template('home.tpl')
+    return {"body": body}
+
 if __name__ == "__main__":
+    '''
+    Direct launch via Bottle
+    '''
     bottle.run(host='localhost', port=3000)
+else :
+    '''
+    'app' and 'application' variables declaration for WSGI 
+    '''
+    app = application = bottle.Bottle()
+
