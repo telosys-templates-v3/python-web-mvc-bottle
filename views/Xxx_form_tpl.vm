@@ -80,12 +80,6 @@
 #end
 ## ---------------------------------------------------------------------------------
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/home">Home</a></li>
-    <li class="breadcrumb-item active"><a href="/${entity.name.toLowerCase()}">$entity.name</a></li>
-    <li class="breadcrumb-item active">{{form}} $entity.name</li>
-</ol>
-
 %if form == "Update" :
 <script>
 history.pushState(null, "", "/${entityNameForURI}/form/${entityIdForURI}");
@@ -93,7 +87,6 @@ history.pushState(null, "", "/${entityNameForURI}/form/${entityIdForURI}");
 % end
 
 <div class="container">
-    <h2></h2>
     <div class="container">
         <form class="form-horizontal" method="post" id="${entity.name.toLowerCase()}_form">
             <div class="panel-group">

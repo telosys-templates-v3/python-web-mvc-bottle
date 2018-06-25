@@ -1,14 +1,11 @@
-<ol class="breadcrumb">
-  <li class="breadcrumb-item active">Home</li>
-</ol>
-
 
 <div class="container">
-    <h2></h2>
     <div class="container">
         <div class="panel-group">
             <div class="panel panel-info">
-                <div class="panel-heading"><h3><span class="glyphicon glyphicon-home"></span> Home</h3></div>
+                <div class="panel-heading">
+                   <h4><span class="glyphicon glyphicon-home"></span>&nbsp; Home</h4>
+                </div>
                 <div class="panel-body">
                     <ul class="list-group">
 #foreach( $entity in $selectedEntities )
@@ -22,7 +19,3 @@
         </div>
     </div>
 </div>
-
-
-
-

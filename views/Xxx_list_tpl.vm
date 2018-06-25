@@ -1,21 +1,13 @@
 ##
-## #set( $entityNameForURI = ${entity.name.toLowerCase()} )
-## #set( $prefix = "{{" + $entity.name + "['")
-## #set( $entityIdForURI = $entity.keyAttributesNamesAsString("/", $prefix, "']}}" ) )
 #set( $entityNameForURI = ${entity.name.toLowerCase()} )
 #set( $entityIdForURI = $entity.keyAttributesNamesAsString("/", "{{entity['", "']}}" ) )
 ##
-<ol class="breadcrumb">
-  <li class="breadcrumb-item"><a href="/home">Home</a></li>
-  <li class="breadcrumb-item active">${entity.name}</li>
-</ol>
 
 <script>
 history.pushState(null, "", '/${entityNameForURI}');
 </script>
 
 <div class="container">
-    <h2></h2>
     <div class="container">
         <div class="panel-group">
             <div class="panel panel-info">
@@ -75,7 +67,3 @@ history.pushState(null, "", '/${entityNameForURI}');
         </div>
     </div>
 </div>
-
-
-
-
